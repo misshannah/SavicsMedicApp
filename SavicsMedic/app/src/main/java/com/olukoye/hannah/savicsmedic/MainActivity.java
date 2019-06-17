@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setItemIconTintList(null);
 
         nameText = findViewById(R.id.full_name);
         ageText = findViewById(R.id.age);
@@ -81,7 +82,6 @@ public class MainActivity extends AppCompatActivity
                                 patientGender = "0";
                                 break;
                         }
-                        Log.d ("Gender ID:", String.valueOf(checkedId));
                      }
                  }
         );
@@ -98,6 +98,10 @@ public class MainActivity extends AppCompatActivity
 
 
             saveData();
+
+            patientArrayList = new ArrayList<>();
+            patientArrayList.add(new Patient(patientName,
+                    patientEmail,patientAge,patientGender, patientCount));
 
             adapter = new PatientsAdapter(this,patientArrayList);
 
@@ -143,9 +147,6 @@ public class MainActivity extends AppCompatActivity
             patientEmail = sharedPreferences.getString("Email", "");
             patientGender = sharedPreferences.getString("Gender", "");
 
-            patientArrayList = new ArrayList<>();
-            patientArrayList.add(new Patient(patientName,
-                    patientEmail,patientAge,patientGender, patientCount));
 
 
         } else {
@@ -194,16 +195,16 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
+
         } else if (id == R.id.nav_settings) {
             Intent openSettingsScreen = new Intent(this, SettingsActivity.class);
             startActivity(openSettingsScreen);
-            finish();
         }  else if (id == R.id.nav_share) {
 
             Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
             sharingIntent.setType("text/plain");
-            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Android Challenge");
-            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Savics Medic Application");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Android Challenge - Patient Data");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, patientArrayList);
             startActivity(Intent.createChooser(sharingIntent, "Share your results with your friends"));
 
         }
