@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity
             Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
             sharingIntent.setType("text/plain");
             sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Android Challenge - Patient Data");
-            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, patientArrayList);
+            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT,patientName );
             startActivity(Intent.createChooser(sharingIntent, "Share your results with your friends"));
 
         }
