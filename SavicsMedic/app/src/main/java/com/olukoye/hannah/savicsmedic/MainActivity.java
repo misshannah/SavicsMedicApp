@@ -19,7 +19,9 @@ import android.view.Menu;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -27,13 +29,14 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private SharedPreferences sharedPreferences;
-    int patientAge;
+    int patientAge, patientCount;
+    int counter = 0;
     String patientName,patientEmail,patientGender;
     EditText nameText, ageText, emailText;
     ArrayList<Patient> patientArrayList;
     ListView patientList;
     RadioGroup genderText;
-
+    PatientsAdapter adapter;
 
 
     @Override
@@ -62,26 +65,28 @@ public class MainActivity extends AppCompatActivity
         emailText = findViewById(R.id.email);
 
         genderText = findViewById(R.id.gender);
-        genderText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int selectedId = genderText.getCheckedRadioButtonId();
-                if (selectedId == 0) {
-                    patientGender = "M";
-                }
-                if (selectedId == 1) {
-                    patientGender = "F";
-                }
-                if (selectedId == 2) {
 
-                    patientGender = "O";
-                }
-
-            }
-        });
+        genderText.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                 @Override
+                 public void onCheckedChanged(RadioGroup group, int checkedId)
+                    {
+                        switch(checkedId){
+                            case R.id.male_button:
+                                patientGender = "M";
+                                break;
+                            case R.id.female_button:
+                                patientGender = "F";
+                                break;
+                            case R.id.other_button:
+                                patientGender = "0";
+                                break;
+                        }
+                        Log.d ("Gender ID:", String.valueOf(checkedId));
+                     }
+                 }
+        );
 
         patientList = findViewById(R.id.patient_list);
-
 
         loadData();
 
@@ -94,9 +99,11 @@ public class MainActivity extends AppCompatActivity
 
             saveData();
 
-            PatientsAdapter adapter = new PatientsAdapter(this,patientArrayList);
+            adapter = new PatientsAdapter(this,patientArrayList);
 
             patientList.setAdapter(adapter);
+
+            loadData();
 
 
         }catch
@@ -108,7 +115,6 @@ public class MainActivity extends AppCompatActivity
     private void loadData() {
 
         sharedPreferences = this.getSharedPreferences("PatientData", 0);
-        Log.d ("Values:", String.valueOf(sharedPreferences.getAll()));
 
 
     }
@@ -122,20 +128,29 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void saveData(){
-        savePreferences("Name", nameText.getText().toString());
-        savePreferences("Age", ageText.getText().toString());
-        savePreferences("Email", emailText.getText().toString());
-        savePreferences("Gender", genderText.toString());
+        if(counter < 5) {
+            counter++;
+            savePreferences("Count", String.valueOf(counter));
 
-        patientName = sharedPreferences.getString("Name", "");
-        patientAge = Integer.parseInt(sharedPreferences.getString("Age", ""));
-        patientEmail = sharedPreferences.getString("Email", "");
-        patientGender = sharedPreferences.getString("Gender", "");
+            savePreferences("Name", nameText.getText().toString());
+            savePreferences("Age", ageText.getText().toString());
+            savePreferences("Email", emailText.getText().toString());
+            savePreferences("Gender", patientGender);
 
-        patientArrayList = new ArrayList<Patient>();
-        patientArrayList.add(new Patient(patientName,
-                patientEmail,patientAge,patientGender.charAt(0)));
+            patientCount = Integer.parseInt(sharedPreferences.getString("Count", ""));
+            patientName = sharedPreferences.getString("Name", "");
+            patientAge = Integer.parseInt(sharedPreferences.getString("Age", ""));
+            patientEmail = sharedPreferences.getString("Email", "");
+            patientGender = sharedPreferences.getString("Gender", "");
 
+            patientArrayList = new ArrayList<>();
+            patientArrayList.add(new Patient(patientName,
+                    patientEmail,patientAge,patientGender, patientCount));
+
+
+        } else {
+            Toast.makeText(this,"Maximum number of patients reached!",Toast.LENGTH_LONG).show();
+        }
 
     }
 
@@ -161,6 +176,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_reset) {
+            counter = 0;
+            savePreferences("Name", "");
+            savePreferences("Age", "");
+            savePreferences("Email", "");
+            savePreferences("Gender", "");
             return true;
         }
 
